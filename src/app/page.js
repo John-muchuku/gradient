@@ -1,38 +1,62 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect } from "react";
+import "../scss/App.scss";
+import images from "../components/data";
+import Lenis from "lenis";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
 
 export default function Home() {
-  useEffect(() => {
-    // Load Hydra script if not already loaded
-    if (!window.hydraSynth) {
-      const script = document.createElement('script');
-      script.src = 'https://unpkg.com/hydra-synth';
-      script.onload = () => {
-        // Initialize Hydra with higher resolution for better quality
-        const hydra = new Hydra({
-          canvas: document.getElementById('hydra-canvas'),
-          detectAudio: false,
-          width: 1920,
-          height: 1080
+
+  gsap.registerPlugin(ScrollTrigger, useGSAP);
+
+    useEffect(() => {
+        const lenis = new Lenis();
+
+        lenis.on("scroll", ScrollTrigger.update);
+
+        gsap.ticker.add((time) => {
+            lenis.raf(time * 500);
         });
 
-        // Run the new visual code
-        osc(20, 0.1, 0).color(0, 1, 2).rotate(1.57/2).out(o1);
-        osc(30, 0.01, 0).color(2, 0.7, 1).modulate(o1, 0).add(o1,1).modulatePixelate(o1,1,10).out(o0);
-      };
-      document.head.appendChild(script);
-    } else {
-      // If already loaded, just run the new visual code
-      osc(20, 0.1, 0).color(0, 1, 2).rotate(1.57/2).out(o1);
-      osc(30, 0.01, 0).color(2, 0.7, 1).modulate(o1, 0).add(o1,1).modulatePixelate(o1,1,10).out(o0);
-    }
-  }, []);
+        gsap.ticker.lagSmoothing(0);
+    }, []);
+
+    useGSAP(() => {
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: ".contaier",
+                start: "top top",
+                end: "+=100%",
+                scrub: 4,
+                pin: true,
+            },
+        });
+        tl.to(".imgMask1", {
+            maskSize: "200%",
+        });
+        tl.to(".imgMask2", {
+            maskSize: "200%",
+        });
+
+        tl.to(".imgMask3", {
+            maskSize: "200%",
+        });
+    });
+
 
   return (
-    <div className="flex items-center justify-center relative">
-      <div className='h-screen w-full top absolute -400 backdrop-blur-2xl bg-white/45'></div>
-      <canvas id="hydra-canvas" className="w-full h-screen"></canvas>
-    </div>
+   <>
+            <section>往下滑動</section>
+            <div className="contaier bg-black">
+                <img src={images[0]} alt="" className="imgMask1 bg-red-400" />
+                <img src={images[1]} alt="" className="imgMask2 bg-green-300" />
+                <img src={images[2]} alt="" className="imgMask3 bg-purple-400" />
+            </div>
+            <section>Mask</section>
+        </>
   );
 }
